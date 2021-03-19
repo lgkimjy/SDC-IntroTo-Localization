@@ -5,14 +5,18 @@
 """
 
 import numpy as np
+import math
 
 # uniform distribution of over places
-# p = [0.2, 0.2, 0.2, 0.2, 0.2]
-p = [0, 1, 0, 0,0, 0]
+p = [0.2, 0.2, 0.2, 0.2, 0.2]
+# p = [0, 1, 0, 0, 0, 0]
 world = ['green', 'red', 'red', 'green', 'green']
 senses = ["miss", "hit", "hit", "miss", "miss"]
+# sense measurements : z
 Z = 'red'
 measurements = ['red', 'green']
+# motion
+motions = [1, 1] # move right and right again
 # robot sesne probability
 pHit = 0.6
 pMiss = 0.2
@@ -45,7 +49,7 @@ def normalization(p):
         p[i] = p[i] / sum
     return p # or normalize
 
-###### equael to normalization() + sense()
+###### equal to normalization() + sense()
 def normalized_sense(p, Z):
     q=[]
     for i in range(len(p)):
@@ -62,14 +66,28 @@ def move(p, U):
     for i in range(len(p)):
         q.append(p[(i-U)%len(p)])
     return q
-###### robot motion with slip or some kinds of errors
+
+###### robot motion with kinds of errors (slippery)
 def inaccurate_move(p, U):
     q = []
     for i in range(len(p)):
         q.append(pExact*p[(i-U)%len(p)] + pUndershoot*p[(i-U-1)%len(p)] + pOvershoot*p[(i-U+1)%len(p)])
     return q
 
-for i in range(1000):
-    p = inaccurate_move(p,1)
+###### uniform prior distribuion -> USE formula ENTROPY = Σ(−p×log(p))
+entropy = 0
+for i in range(len(p)):
+    entropy += -1*p[i] * math.log(p[i], 10)
+
+###### if p=[0, 1, 0, 0, 0] -> after 1000 iteration, 
+###### p will become uniform distribution p = [0.2,0.2,0.2,0.2,0.2]
+# for i in range(1000):
+#     p = inaccurate_move(p,1)
+
+###### Simple Loalization loop -> outputs the probability of position
+for i in range(len(measurements)):
+    p = normalized_sense(p, measurements[i])
+    p = inaccurate_move(p, motions[i])
 
 print(p)
+print(entropy)
