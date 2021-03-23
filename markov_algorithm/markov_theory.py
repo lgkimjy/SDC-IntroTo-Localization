@@ -1,5 +1,5 @@
 """
- *  probabilistic_robotics.py
+ *  markov_theory.py
  *   Created on : 2021. 3. 18.
  *       Author : Junyoung Kim
 """
