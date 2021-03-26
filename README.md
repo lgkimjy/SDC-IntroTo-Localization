@@ -13,6 +13,14 @@
 - p is probability mass function
 - entropy value will increase when robot is in difficult situation(hard initial information), and value will decrease in easier situation
 
+## Law of Total probability
+- .......
+
+## Markov Assumption
+- Quantity of data z(measurements) and u(control) are too big.
+- based on chain rules, we can assume that x_{t-1} is optimized P
+- This assumption is important because it will make the Bayes filter algorithm become a recursive structure
+
 ## Summarize
 - Belief -> probability
 - Sense -> product, followed by normalization
