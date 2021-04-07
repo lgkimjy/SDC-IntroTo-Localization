@@ -1,7 +1,7 @@
 """
  *  particle_filter_intro.py
  *   Created on : 2021. 4. 5.
- *       Author : Udacity-SDC / Junyoung Kim
+ *       Author : Junyoung Kim
 """
 
 from math import *
@@ -30,12 +30,10 @@ class robot:
         self.y = float(new_y)
         self.orientation = float(new_orientation)
     
-    
     def set_noise(self, new_f_noise, new_t_noise, new_s_noise):
         self.forward_noise = float(new_f_noise)
         self.turn_noise    = float(new_t_noise)
         self.sense_noise   = float(new_s_noise)
-    
     
     def sense(self):
         Z = []
@@ -44,7 +42,6 @@ class robot:
             dist += random.gauss(0.0, self.sense_noise)
             Z.append(dist)
         return Z
-    
     
     def move(self, turn, forward):
         # if forward < 0:
@@ -71,16 +68,13 @@ class robot:
         # calculates the probability of x for 1-dim Gaussian with mean mu and var. sigma
         return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
     
-    
     def measurement_prob(self, measurement):
-        
         # calculates how likely a measurement should be
         prob = 1.0
         for i in range(len(landmarks)):
             dist = sqrt((self.x - landmarks[i][0]) ** 2 + (self.y - landmarks[i][1]) ** 2)
             prob *= self.Gaussian(dist, self.sense_noise, measurement[i])
         return prob
-    
     
     def __repr__(self):
         return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
@@ -96,10 +90,60 @@ def eval(r, p):
     return sum / float(len(p))
 
 
-myrobot = robot()
-myrobot.set_noise(5.0, 0.1, 5.0)
-myrobot.set(30.0, 50.0, pi/2)
-myrobot = myrobot.move(-pi/2, 15.0)
-print(myrobot.sense())
-myrobot = myrobot.move(-pi/2, 10.0)
-print(myrobot.sense())
+def func_manual():
+    myrobot = robot()
+    myrobot.set_noise(5.0, 0.1, 5.0)
+    myrobot.set(30.0, 50.0, pi/2)
+    myrobot = myrobot.move(-pi/2, 15.0)
+    # print(myrobot.sense())
+    myrobot = myrobot.move(-pi/2, 10.0)
+    # print(myrobot.sense())
+
+def particles_initialize(Num):
+    particles = []
+    for i in range(Num):
+        obj = robot()
+        obj.set_noise(0.05, 0.05, 5.0)
+        obj.set(30.0, 50.0, pi/2)
+        particles.append(obj)
+
+    return particles
+
+def sum_wegith(w):
+    sum_w = 0
+    for i in range(len(w)):
+        sum_w += w[i]
+    return sum_w
+
+def resampling():
+    # ressampling wheel 
+
+
+def particle_filter():
+    
+    my_robot = robot()
+    my_robot = my_robot.move(0.1, 5.0)
+    Z = my_robot.sense()
+    
+    N = 1000
+    w = [None] * N
+    alpha = [None] * N
+    particles = particles_initialize(N)
+
+    for i in range(N):
+        particles[i] = particles[i].move(0.1, 5)
+        # measurements[i] = particles[i].sense()
+        w[i] = particles[i].measurement_prob(Z)
+
+    sum_w = sum_wegith(w)
+
+    for i in range(N):
+        alpha[i] = w[i]/ sum_w
+
+    # print(w)
+    # print(sum_w)
+
+
+if __name__ == "__main__":
+    func_manual()
+    particle_filter()
