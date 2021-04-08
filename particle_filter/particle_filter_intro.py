@@ -115,8 +115,13 @@ def sum_wegith(w):
         sum_w += w[i]
     return sum_w
 
-def resampling():
-    # ressampling wheel 
+def resampling(alpha, N):
+    # resampling wheel
+    resampled = [None] * N
+    for i in range(N):
+        resampled[i] = (1 - alpha[i]) ** N
+
+    return resampled
 
 
 def particle_filter():
@@ -140,6 +145,10 @@ def particle_filter():
     for i in range(N):
         alpha[i] = w[i]/ sum_w
 
+    # after calculate alpha data and have to resample to choose a most optimized alpha
+    resampled = resampling(alpha, N)
+    print(resampled)
+    
     # print(w)
     # print(sum_w)
 
