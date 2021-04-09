@@ -104,55 +104,55 @@ def particles_initialize(Num):
     for i in range(Num):
         obj = robot()
         obj.set_noise(0.05, 0.05, 5.0)
-        obj.set(30.0, 50.0, pi/2)
         particles.append(obj)
 
     return particles
 
-def sum_wegith(w):
-    sum_w = 0
-    for i in range(len(w)):
-        sum_w += w[i]
-    return sum_w
-
-def resampling(alpha, N):
-    # resampling wheel
-    resampled = [None] * N
-    for i in range(N):
-        resampled[i] = (1 - alpha[i]) ** N
+def resampling(p, w):
+    # resampling roullette wheel
+    resampled = []
+    index = int(random.random() * N)
+    beta = 0.0
+    mw = max(w)
+    for i in range(len(p)):
+        beta += random.random() * 2.0 * mw
+        while beta > w[index]:
+            beta -= w[index]
+            index = (index + 1) % N
+        resampled.append(p[index])
 
     return resampled
 
+def particle_filter(particles, Z, vel_x, ang_z):
 
-def particle_filter():
+    w = []
+    for i in range(len(particles)):
+        particles[i] = particles[i].move(ang_z, vel_x)
+    for i in range(len(particles)):
+        w.append(particles[i].measurement_prob(Z))
+    resampled = resampling(particles, w)
     
-    my_robot = robot()
-    my_robot = my_robot.move(0.1, 5.0)
-    Z = my_robot.sense()
-    
-    N = 1000
-    w = [None] * N
-    alpha = [None] * N
+    return resampled
+
+
+# its not working well because list of data should be replaced not appending
+if __name__ == "__main__":
+    # func_manual()
+
+    myrobot = robot()
+    myrobot = myrobot.move(0.1, 5.0)
+    Z = myrobot.sense()
+
+    N = 1000   # number of particles
     particles = particles_initialize(N)
 
-    for i in range(N):
-        particles[i] = particles[i].move(0.1, 5)
-        # measurements[i] = particles[i].sense()
-        w[i] = particles[i].measurement_prob(Z)
+    T = 10     # loop time
+    linear_x = 5.0
+    angular_z = 0.1
+    for i in range(T):
+        myrobot.move(angular_z, linear_x)
+        Z = myrobot.sense()
 
-    sum_w = sum_wegith(w)
+        particles = particle_filter(particles, Z, linear_x, angular_z)
 
-    for i in range(N):
-        alpha[i] = w[i]/ sum_w
-
-    # after calculate alpha data and have to resample to choose a most optimized alpha
-    resampled = resampling(alpha, N)
-    print(resampled)
-    
-    # print(w)
-    # print(sum_w)
-
-
-if __name__ == "__main__":
-    func_manual()
-    particle_filter()
+        print(eval(myrobot, particles))
