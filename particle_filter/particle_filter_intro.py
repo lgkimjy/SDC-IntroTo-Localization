@@ -111,7 +111,7 @@ def particles_initialize(Num):
 def resampling(p, w):
     # resampling roullette wheel
     resampled = []
-    index = int(random.random() * N)
+    index = int(random.random() * len(p))
     beta = 0.0
     mw = max(w)
     for i in range(len(p)):
@@ -135,7 +135,7 @@ def particle_filter(particles, Z, vel_x, ang_z):
     return resampled
 
 
-# its not working well because list of data should be replaced not appending
+
 if __name__ == "__main__":
     # func_manual()
 
