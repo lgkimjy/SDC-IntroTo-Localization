@@ -11,8 +11,12 @@
 using namespace std;
 
 void printSamples(double gps_x, double gps_y, double theta);
+double resampling();
+double gaussian_distribution();
+double error();
 
 int main(){
+    
     double gps_x = 4983;
     double gps_y = 5029;
     double theta = 1.201;
